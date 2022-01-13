@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cdPortico"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    app:cardCornerRadius="20dp"
+    tools:ignore="MissingConstraints">
+
+    <TextView
+        android:id="@+id/tvPortico"
+        style="@style/body.normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:gravity="center"
+        tools:text="Pórtico 1"
+        android:textSize="12sp"/>
+
+</androidx.cardview.widget.CardView>
