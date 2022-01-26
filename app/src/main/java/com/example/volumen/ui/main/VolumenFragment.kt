@@ -1,19 +1,13 @@
 package com.example.volumen.ui.main
 
-import android.annotation.SuppressLint
 import android.app.Dialog
-import android.app.DownloadManager
 import android.content.Context
-import android.database.Cursor
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,15 +15,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.volumen.R
-import com.example.volumen.api.volumen.CodeRequest
-import com.example.volumen.api.volumen.ResponseSendDataVolumen
-import com.example.volumen.api.volumen.SendDataVolumen
-import com.example.volumen.api.volumen.Volumen
+import com.example.volumen.api.volumen.*
 import com.example.volumen.databinding.FragmentVolumenBinding
 import com.example.volumen.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -44,6 +34,8 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
 
     private var ip: String? = ""
     private lateinit var customProgressDialog: Dialog
+    private var idPhone = ""
+    private var nameImage = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,12 +62,34 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
         val namePortico = sharedPref.getString("NAME_PORTICO", "")
         val codeScandit = sharedPref.getString("CODE_SCANDIT", "")
         ip = sharedPref.getString("IP", "")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            idPhone =
+                Settings.Secure.getString(activity?.contentResolver, Settings.Secure.ANDROID_ID)
+        }
         binding.apply {
-            tvRutPortico.text = rut
+            tvRutPortico.text = rut?.trim()
             tvPortico.text = namePortico
-            edtBarcode.setText(codeScandit)
+            //edtBarcode.setText("123456")
+            if (codeScandit?.isNotEmpty() == true) {
+                if (validateScanditCode(codeScandit)) {
+                    edtBarcode.setText(codeScandit)
+                } else {
+                    view?.makeSnackbar(MSG_ERROR_BARCODE, false)
+                }
+            }
         }
         customProgressDialog = Dialog(requireContext())
+    }
+
+    private fun validateScanditCode(code: String): Boolean {
+
+        if (code.length != 26) return false
+
+        val numeric = code.matches("-?\\d+(\\.\\d+)?".toRegex())
+
+        if (numeric) return true
+
+        return false
     }
 
     private fun setUpView() {
@@ -88,7 +102,12 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
             }
             lRequestSizes.setOnClickListener {
                 if (edtBarcode.text.isNotEmpty()) {
-                    val code = CodeRequest(edtBarcode.text.toString())
+                    val code = CodeRequest(
+                        edtBarcode.text.toString(),
+                        tvRutPortico.text.toString(),
+                        tvPortico.text.toString(),
+                        idPhone
+                    )
                     val url = ip + URL_VOLUMEN
                     viewModel.getVolumen(url, code)
                 } else {
@@ -101,7 +120,7 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
             btnSend.setOnClickListener {
                 lifecycleScope.launch {
                     try {
-                        if (validateSize()) {
+                        if (validateDataSize()) {
                             if (isOnline(requireContext())) {
                                 sendDataVolumen(true)
                             } else {
@@ -135,23 +154,22 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
 
     private fun sendDataVolumen(fullData: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val idPhone =
-                Settings.Secure.getString(activity?.contentResolver, Settings.Secure.ANDROID_ID)
             val current = LocalDateTime.now()
             val date = Date.from(current.atZone(ZoneId.systemDefault()).toInstant())
             val url = URL_WEB + URL_WEB_DATA_PORTICO
             binding.apply {
                 val data1 = SendDataVolumen(
                     idPhone = idPhone,
-                    high = stringToDouble(edtHigh.text.toString()),
-                    long = stringToDouble(edtLong.text.toString()),
-                    width = stringToDouble(edtWidth.text.toString()),
+                    highh = stringToDouble(edtHigh.text.toString()),
+                    longg = stringToDouble(edtLong.text.toString()),
+                    widthh = stringToDouble(edtWidth.text.toString()),
                     volumen = stringToDouble(edtVolume.text.toString()),
                     rut = tvRutPortico.text.toString(),
                     date = date,
                     portico = tvPortico.text.toString(),
                     bardCode = edtBarcode.text.toString(),
-                    status = "OK")
+                    status = STATUS_SEND_OK,
+                    img_name = nameImage)
 
                 val data2 = SendDataVolumen(
                     idPhone = idPhone,
@@ -159,21 +177,20 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
                     date = date,
                     portico = tvPortico.text.toString(),
                     bardCode = edtBarcode.text.toString(),
-                    status = "SIN MEDIDAS")
+                    status = STATUS_SEND_NULL,
+                    img_name = nameImage)
 
                 if (fullData) {
-                    viewModel.sendDataVolumen(url, data1)
-                    //viewModel.insertSendDataVolumen(data1)
+                    viewModel.sendData(url, data1)
                 } else {
-                    viewModel.sendDataVolumen(url, data2)
-                    //viewModel.insertSendDataVolumen(data2)
+                    viewModel.sendData(url, data2)
                 }
             }
 
         }
     }
 
-    private fun validateSize(): Boolean {
+    private fun validateDataSize(): Boolean {
 
         binding.apply {
             if (edtBarcode.text.trim().isEmpty()
@@ -208,28 +225,27 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
                 is Resource.Success -> showSuccessView(result.data)
             }
         })
-        viewModel.sendDataVolumenLiveData.observe(viewLifecycleOwner, { result ->
+        viewModel.sendDataLiveData.observe(viewLifecycleOwner, { result ->
             when (result) {
                 is Resource.Error -> showErrorView(result.error)
                 is Resource.Loading -> showLoadingView()
                 is Resource.Success -> showSuccessViewSendData(result.data)
             }
         })
-//        viewModel.listData.observe(viewLifecycleOwner, { list ->
-//            val listData = list
-//        })
     }
 
-    private fun showSuccessViewSendData(data: ResponseSendDataVolumen?) {
-        val response = data?.result
-        response?.let {
-            if (it) {
+    private fun showSuccessViewSendData(result: Boolean?) {
+
+        if (result != null) {
+
+            if (result) {
                 view?.makeSnackbar(DATA_SENT, true)
-                clear()
             } else {
-                view?.makeSnackbar(MSG_ERROR, false)
+                view?.makeSnackbar(DATA_SAVE, true)
             }
+
         }
+        clear()
         customProgressDialog.dismiss()
     }
 
@@ -242,7 +258,7 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
                 edtVolume.setText(volumen.toString())
             }
         }
-        val nameImage = data?.imagen
+        nameImage = data?.imagen.toString()
         val pathImage = ip + URL_IMAGEN + nameImage
         Glide.with(requireContext()).load(pathImage).into(binding.imgResult)
         customProgressDialog.dismiss()
@@ -259,69 +275,6 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
             customProgressDialog.dismiss()
             view?.makeSnackbar(error?.message.toString(), false)
         }
-    }
-
-    var msg: String? = ""
-    var lastMsg = ""
-
-    @SuppressLint("Range")
-    private fun downloadImage(url: String) {
-
-        val directory = File(Environment.DIRECTORY_PICTURES)
-
-        if (!directory.exists()) {
-            directory.mkdirs()
-        }
-
-        val downloadManager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-
-        val downloadUri = Uri.parse(url)
-
-        val request = DownloadManager.Request(downloadUri).apply {
-            setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false)
-                .setTitle(url.substring(url.lastIndexOf("/") + 1))
-                .setDescription("")
-                .setDestinationInExternalPublicDir(
-                    directory.toString(),
-                    url.substring(url.lastIndexOf("/") + 1)
-                )
-        }
-
-        val downloadId = downloadManager.enqueue(request)
-        val query = DownloadManager.Query().setFilterById(downloadId)
-        Thread(Runnable {
-            var downloading = true
-            while (downloading) {
-                val cursor: Cursor = downloadManager.query(query)
-                cursor.moveToFirst()
-                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                    downloading = false
-                }
-                val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                msg = statusMessage(url, directory, status)
-                if (msg != lastMsg) {
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                    lastMsg = msg ?: ""
-                }
-                cursor.close()
-            }
-        }).start()
-    }
-
-    private fun statusMessage(url: String, directory: File, status: Int): String? {
-        var msg = ""
-        msg = when (status) {
-            DownloadManager.STATUS_FAILED -> "Download has been failed, please try again"
-            DownloadManager.STATUS_PAUSED -> "Paused"
-            DownloadManager.STATUS_PENDING -> "Pending"
-            DownloadManager.STATUS_RUNNING -> "Downloading..."
-            DownloadManager.STATUS_SUCCESSFUL -> "Image downloaded successfully in $directory" + File.separator + url.substring(
-                url.lastIndexOf("/") + 1
-            )
-            else -> "There's nothing to download"
-        }
-        return msg
     }
 
     override fun onDestroyView() {

@@ -1,15 +1,17 @@
 package com.example.volumen.data.repository
 
-import androidx.lifecycle.asLiveData
+import android.content.Context
 import androidx.room.withTransaction
 import com.example.volumen.api.ApiService
-import com.example.volumen.api.portico.Data
 import com.example.volumen.api.volumen.CodeRequest
+import com.example.volumen.api.volumen.ResponseSendData
 import com.example.volumen.api.volumen.ResponseSendDataVolumen
 import com.example.volumen.api.volumen.SendDataVolumen
 import com.example.volumen.data.AppDatabase
 import com.example.volumen.utils.Resource
+import com.example.volumen.utils.isOnline
 import com.example.volumen.utils.networkBoundResource
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,14 +20,15 @@ import javax.inject.Inject
 
 class Repository @Inject constructor(
     private val apiService: ApiService,
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    @ApplicationContext val appContext: Context,
 ) {
 
     private val porticoDao = appDatabase.porticoDao()
     private val volumenDao = appDatabase.volumenDao()
     private val dataVolumenDao = appDatabase.dataVolumenDao()
     private val listPorticoDao = appDatabase.listPorticoDao()
-    //private val sendDataVolumenDao = appDatabase.sendDataVolumenDao()
+    private val sendDataDao = appDatabase.sendDataDao()
 
     fun getPorticoStatus(url: String) = networkBoundResource(
         databaseQuery = {
@@ -87,26 +90,81 @@ class Repository @Inject constructor(
         }
     )
 
-//    suspend fun insertSendData(data: SendDataVolumen) {
-//        appDatabase.withTransaction {
-//            sendDataVolumenDao.insertSendDataVolumen(data)
-//        }
-//    }
+    suspend fun insertSendData(data: SendDataVolumen) {
+        appDatabase.withTransaction {
+            sendDataDao.insertSendData(data)
+        }
+    }
+
+    suspend fun deleteSendData(id: Int) {
+        appDatabase.withTransaction {
+            sendDataDao.deleteSendData(id)
+        }
+    }
+
+    suspend fun deleteAllSendData() {
+        appDatabase.withTransaction {
+            sendDataDao.deleteAllSendData()
+        }
+    }
+
+//    private val sendDataTask = sendDataDao.getAllSendData()
+//    private val listSendData = sendDataTask.asLiveData()
 
     fun sendData(
         listData: List<SendDataVolumen>,
-        url: String
-    ): Flow<Resource<Boolean>> {
+        url: String,
+    ): Flow<Resource<List<ResponseSendData>>> {
         return flow {
-            emit(Resource.Loading<Boolean>())
+            emit(Resource.Loading<List<ResponseSendData>>())
+            val listMutable = mutableListOf<ResponseSendData>()
             try {
                 var response: ResponseSendDataVolumen
 
                 listData.forEach { data ->
                     response = apiService.sendDataVolumen(url, data)
+                    val responseSendData = ResponseSendData(data, response.result)
+                    listMutable.add(responseSendData)
                 }
 
-                emit(Resource.Success<Boolean>(true))
+                emit(Resource.Success<List<ResponseSendData>>(listMutable))
+            } catch (throwable: Throwable) {
+                emit(Resource.Error<List<ResponseSendData>>(throwable))
+            }
+        }.flowOn(Dispatchers.IO)
+    }
+
+    fun sendData2(
+        data: SendDataVolumen,
+        url: String,
+    ): Flow<Resource<Boolean>> {
+        return flow {
+            emit(Resource.Loading<Boolean>())
+            try {
+                var status: Boolean = false
+                var response: ResponseSendDataVolumen
+
+                insertSendData(data)
+
+                var listData = sendDataDao.getAllSendData()
+
+                if (isOnline(appContext)) {
+
+                    listData.forEach { data ->
+                        //deleteSendData(data.id)
+                        response = apiService.sendDataVolumen(url, data)
+                        if (response.result) {
+                            deleteSendData(data.id)
+                        }
+                    }
+
+                    listData = sendDataDao.getAllSendData()
+
+                    if (listData.isEmpty()) status = true
+
+                }
+
+                emit(Resource.Success<Boolean>(status))
             } catch (throwable: Throwable) {
                 emit(Resource.Error<Boolean>(throwable))
             }

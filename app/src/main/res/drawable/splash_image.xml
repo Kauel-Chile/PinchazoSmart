@@ -3,6 +3,6 @@
 
     <item android:drawable="@color/green"/>
 
-    <item android:drawable="@drawable/logo_starken" android:gravity="center"/>
+    <item android:drawable="@drawable/logo_starken" android:gravity="center" android:width="200dp" android:height="200dp"/>
 
 </layer-list>

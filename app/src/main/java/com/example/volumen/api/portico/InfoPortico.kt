@@ -1,7 +1,6 @@
 package com.example.volumen.api.portico
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "info_portico")

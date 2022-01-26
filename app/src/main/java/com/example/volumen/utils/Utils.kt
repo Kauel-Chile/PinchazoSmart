@@ -3,12 +3,7 @@ package com.example.volumen.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.wifi.WifiManager
-import android.os.Build
 import android.util.Log
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern

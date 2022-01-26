@@ -2,12 +2,7 @@ package com.example.volumen.ui.portico
 
 import android.app.Dialog
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.text.format.Formatter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +20,6 @@ import com.example.volumen.utils.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.reflect.Type
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -94,16 +88,21 @@ class PorticoFragment : Fragment(R.layout.fragment_portico), PorticoAdapter.OnIt
     }
 
     private fun chargeAdapter() {
-        if (isOnline(requireContext())) {
-            val url = URL_WEB + URL_WEB_PORTICO
-            viewModel.getListPortico(url)
-        } else {
-            if (listPortico.isNotEmpty()) {
-                adapter.submitList(listPortico)
-            } else {
-                view?.makeSnackbar(MSG_ERROR_INTERNET, false)
+        if (listPortico.isNotEmpty()) {
+            adapter.submitList(listPortico)
+            if (isOnline(requireContext())) {
+                getListPortico()
             }
+        } else if (isOnline(requireContext())) {
+            getListPortico()
+        } else {
+            view?.makeSnackbar(MSG_ERROR_INTERNET, false)
         }
+    }
+
+    private fun getListPortico() {
+        val url = URL_WEB + URL_WEB_PORTICO
+        viewModel.getListPortico(url)
     }
 
     private fun initObservers() {
@@ -111,23 +110,23 @@ class PorticoFragment : Fragment(R.layout.fragment_portico), PorticoAdapter.OnIt
             when (result) {
                 is Resource.Success -> {
                     flag = true
-                    showSuccessListPorticoView(result.data)
+                    showSuccessPorticoView(result.data)
                 }
-                is Resource.Loading -> showLoadingView()
-                is Resource.Error -> showErrorView(result.error)
+                is Resource.Loading -> showLoadingView(1)
+                is Resource.Error -> showErrorView(result.error, 1)
             }
         })
         viewModel.listPorticoLiveData.observe(viewLifecycleOwner, { result ->
             when (result) {
                 is Resource.Success -> showSuccessListPorticoView(result.data)
-                is Resource.Loading -> showLoadingView()
-                is Resource.Error -> showErrorView(result.error)
+                is Resource.Loading -> showLoadingView(2)
+                is Resource.Error -> showErrorView(result.error,2)
             }
         })
     }
 
     private fun showSuccessListPorticoView(list: ListPortico?) {
-        customProgressDialog.dismiss()
+        binding.pbUploadListing.gone()
         val data = list?.data
         if (data != null) {
             listPortico = data
@@ -135,7 +134,7 @@ class PorticoFragment : Fragment(R.layout.fragment_portico), PorticoAdapter.OnIt
         data.let { adapter.submitList(it) }
     }
 
-    private fun showSuccessListPorticoView(data: PorticoStatus?) {
+    private fun showSuccessPorticoView(data: PorticoStatus?) {
         customProgressDialog.dismiss()
         val status = data?.info_portico?.status
         if (status != null) {
@@ -146,14 +145,28 @@ class PorticoFragment : Fragment(R.layout.fragment_portico), PorticoAdapter.OnIt
         }
     }
 
-    private fun showLoadingView() {
-        customProgressDialog.setContentView(R.layout.custom_dialog)
-        customProgressDialog.setCancelable(false)
-        customProgressDialog.show()
+    private fun showLoadingView(typeLoader: Int) {
+        when (typeLoader) {
+            1 -> {
+                customProgressDialog.setContentView(R.layout.custom_dialog)
+                customProgressDialog.setCancelable(false)
+                customProgressDialog.show()
+            }
+            2 -> {
+                binding.pbUploadListing.visible()
+            }
+        }
     }
 
-    private fun showErrorView(error: Throwable?) {
-        customProgressDialog.dismiss()
+    private fun showErrorView(error: Throwable?, typeLoader: Int) {
+        when (typeLoader) {
+            1 -> {
+                customProgressDialog.dismiss()
+            }
+            2 -> {
+                binding.pbUploadListing.visible()
+            }
+        }
         if (!flag) {
             view?.makeSnackbar(error?.message.toString(), false)
         }

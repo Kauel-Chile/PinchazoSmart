@@ -7,6 +7,7 @@ import com.example.volumen.api.volumen.InfoVolumen
 import com.example.volumen.api.volumen.Item
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.*
 
 class Converters {
 
@@ -47,6 +48,16 @@ class Converters {
 
     @TypeConverter
     fun saveInfoListPortico(objectToSave: List<Data>?): String? {
+        return Gson().toJson(objectToSave)
+    }
+
+    @TypeConverter
+    fun restoreSendData(objectToRestore: String?): Date? {
+        return Gson().fromJson(objectToRestore, object : TypeToken<Date?>() {}.type)
+    }
+
+    @TypeConverter
+    fun saveSendData(objectToSave: Date?): String? {
         return Gson().toJson(objectToSave)
     }
 }

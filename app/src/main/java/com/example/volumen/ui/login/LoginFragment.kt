@@ -72,10 +72,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun saveRut() {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
-            putString("RUT", binding.edtRut.text.toString())
+            putString("RUT", binding.edtRut.text.toString().trimStart().trimEnd())
             putString("CODE_SCANDIT", "")
-            //putString("IP", "")
-            //putString("NAME_PORTICO", "")
             apply()
         }
     }

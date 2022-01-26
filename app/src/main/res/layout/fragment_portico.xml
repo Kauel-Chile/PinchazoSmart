@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/lUser"
-        android:layout_width="120dp"
-        android:layout_height="90dp"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="23.3dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_item"
@@ -25,15 +25,16 @@
 
         <TextView
             android:id="@+id/tvRutPortico"
+            style="@style/body.normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            style="@style/body.normal"
             tools:text="15.355.553-2" />
 
     </LinearLayout>
 
     <ScrollView
+        android:paddingTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +46,6 @@
             android:orientation="vertical">
 
 
-
             <LinearLayout
                 android:id="@+id/lWifi"
                 android:layout_width="wrap_content"
@@ -54,40 +54,56 @@
                 android:layout_marginTop="16dp">
 
                 <TextView
+                    style="@style/body.bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    style="@style/body.bold"
                     android:text="@string/text_wifi" />
 
                 <TextView
                     android:id="@+id/tvWifiName"
+                    style="@style/body.normal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    style="@style/body.normal"
-                    tools:text="Wifi _ RED-STARKE"
                     android:layout_marginLeft="20dp"
+                    android:background="@drawable/rounded_item"
                     android:padding="10dp"
-                    android:background="@drawable/rounded_item"/>
+                    tools:text="Wifi _ RED-STARKE" />
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvTitlePortico"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                style="@style/body.bold"
-                android:text="@string/available_portico" />
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/tvTitlePortico"
+                    style="@style/body.bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/available_portico"
+                    android:layout_gravity="center"/>
+
+                <ProgressBar
+                    android:id="@+id/pbUploadListing"
+                    android:paddingStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminateTint="@color/green"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+
+            </LinearLayout>
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/sfRefreshPortico"
                 android:layout_width="wrap_content"
                 android:layout_height="300dp"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginEnd="24dp">
 
                 <androidx.recyclerview.widget.RecyclerView

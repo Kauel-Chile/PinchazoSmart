@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.volumen.R
 import com.example.volumen.databinding.FragmentScanditBinding
-import com.example.volumen.ui.main.VolumenFragment
 import com.example.volumen.utils.KEY_SCANDIT
 import com.example.volumen.utils.lifeCycleNavigate
 import com.scandit.datacapture.barcode.capture.BarcodeCapture

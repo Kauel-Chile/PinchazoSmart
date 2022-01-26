@@ -48,6 +48,6 @@ object AppModule {
             .fallbackToDestructiveMigration()
             .build()
 
-//    @Provides
-//    fun provideServerDao(db: AppDatabase) = db.serverDao()
+    @Provides
+    fun provideServerDao(db: AppDatabase) = db.sendDataDao()
 }
