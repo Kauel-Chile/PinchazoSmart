@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/login"
-        android:name="com.example.volumen.ui.login.LoginFragment"
+        android:name="com.kauel.pinchazoSmart.ui.login.LoginFragment"
         android:label="LoginFragment" >
         <action
             android:id="@+id/action_login_to_connectInternetFragment"
@@ -14,7 +14,7 @@
     </fragment>
     <fragment
         android:id="@+id/connectInternet"
-        android:name="com.example.volumen.ui.connect_internet.ConnectInternetFragment"
+        android:name="com.kauel.pinchazoSmart.ui.connect_internet.ConnectInternetFragment"
         android:label="ConnectInternetFragment" >
         <action
             android:id="@+id/action_connectInternet_to_portico"
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/portico"
-        android:name="com.example.volumen.ui.portico.PorticoFragment"
+        android:name="com.kauel.pinchazoSmart.ui.portico.PorticoFragment"
         android:label="PorticoFragment" >
         <action
             android:id="@+id/action_portico_to_login"
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/volumen"
-        android:name="com.example.volumen.ui.main.VolumenFragment"
+        android:name="com.kauel.pinchazoSmart.ui.main.VolumenFragment"
         android:label="PorticoFragment" >
         <action
             android:id="@+id/action_volumen_to_login"
@@ -47,7 +47,7 @@
     </fragment>
     <fragment
         android:id="@+id/scandit"
-        android:name="com.example.volumen.ui.scandit.ScanditFragment"
+        android:name="com.kauel.pinchazoSmart.ui.scandit.ScanditFragment"
         android:label="ScanditFragment" >
         <action
             android:id="@+id/action_scandit_to_volumen"
