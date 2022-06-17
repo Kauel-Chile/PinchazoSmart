@@ -191,8 +191,8 @@ class PorticoFragment : Fragment(R.layout.fragment_portico), PorticoAdapter.OnIt
     }
 
     override fun onItemClick(data: Data) {
-        //ip = "http://${data.ip}:${data.port}"
-        ip = "http://192.168.1.141:5000"
+        ip = "http://${data.ip}:${data.port}"
+        //ip = "http://192.168.1.141:5000"
         val ipPortico = ip + URL_PORTICO
         namePortico = data.name
         viewModel.getPorticoStatus(ipPortico)

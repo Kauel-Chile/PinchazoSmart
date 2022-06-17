@@ -30,7 +30,7 @@ class PorticoAdapter(private val listener: OnItemClickListener) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(data: Data, listener: OnItemClickListener) {
             binding.apply {
-                tvPortico.text = data.name
+                tvPortico.text = data.name.toUpperCase()
                 cdPortico.setOnClickListener {
                     listener.onItemClick(data)
                 }

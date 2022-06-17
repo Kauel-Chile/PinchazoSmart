@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.kauel.pinchazoSmart.R
 import com.kauel.pinchazoSmart.api.login.Login
@@ -116,7 +117,8 @@ class ConnectInternetFragment : Fragment(R.layout.fragment_conection_wifi) {
 
     private fun showSuccessView(data: ResponseDataLogin?) {
         binding.progressBar.gone()
-        findNavController().navigate(R.id.action_connectInternet_to_portico)
+        findNavController().lifeCycleNavigate(lifecycleScope, R.id.portico)
+        //findNavController().navigate(R.id.action_connectInternet_to_portico)
     }
 
     private fun showLoadingView() {

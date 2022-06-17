@@ -23,4 +23,7 @@
     <string name="scan_result_parametrised">%1$s: %2$s\nSymbol count: %3$d</string>
     <string name="scanned">Scanned</string>
     <string name="ok">Ok</string>
+
+    //Sentry
+    <string name="dns_sentry">https://5cdba16bcded488e89a738e0bd930d1c@o939500.ingest.sentry.io/6390178</string>
 </resources>

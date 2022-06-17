@@ -15,7 +15,7 @@ android {
         minSdk 21
         targetSdk 31
         versionCode 3
-        versionName "1.2.0"
+        versionName "1.4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -99,6 +99,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.0'
+
+    //SENTRY
+    implementation 'io.sentry:sentry-android:5.7.3'
 }
 
 kapt {

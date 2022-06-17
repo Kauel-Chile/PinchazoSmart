@@ -71,14 +71,14 @@ class VolumenFragment : Fragment(R.layout.fragment_volumen) {
         binding.apply {
             tvRutPortico.text = rut?.trim()
             tvPortico.text = namePortico
-            edtBarcode.setText("123456")
-//            if (codeScandit?.isNotEmpty() == true) {
-//                if (validateScanditCode(codeScandit)) {
-//                    edtBarcode.setText(codeScandit)
-//                } else {
-//                    view?.makeSnackbar(MSG_ERROR_BARCODE, false)
-//                }
-//            }
+            //edtBarcode.setText("123456")
+            if (codeScandit?.isNotEmpty() == true) {
+                if (validateScanditCode(codeScandit)) {
+                    edtBarcode.setText(codeScandit)
+                } else {
+                    view?.makeSnackbar(MSG_ERROR_BARCODE, false)
+                }
+            }
         }
         customProgressDialog = Dialog(requireContext())
     }
